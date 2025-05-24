@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Soumission d'annonce vidéo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        textarea,
+        input[type="file"] {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        input[type="file"] {
+            background: #fafafa;
+            cursor: pointer;
+        }
+
+        button {
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:disabled {
+            background-color: #999;
+            cursor: not-allowed;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background: #eee;
+            border-radius: 8px;
+            overflow: hidden;
+            height: 20px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #007bff;
+            width: 0%;
+            animation: progressAnim 8s linear forwards;
+        }
+
+        @keyframes progressAnim {
+            from { width: 0%; }
+            to { width: 100%; }
+        }
+
+        .result {
+            margin-top: 25px;
+            background: #f9f9f9;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            border-radius: 6px;
+        }
+
+        .result.error { border-left-color: red; color: #a00; }
+        .result.success { border-left-color: green; color: #060; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h3>Ce formulaire vous permet de soumettre votre annonce qui sera analysée par une IA qui va analyser l'audio de votre annonce et analyser mots par mots cet audio. Si cet audio contient des mots ou expressions qui ne sont pas conformes, vous ne pourrez pas finaliser votre enregistrement et ne pourrez pas profiter de notre dispositif. Cependant, si l'analyse valide votre annonce, vous êtes automatiquement enregistrés en attendant que l'on conçoive votre dispositif pour l'affichage de votre annonce.</h3>
+
+        <form id="uploadForm" method="POST" enctype="multipart/form-data" >
+            {% csrf_token %}
+            
+            <input type="text" name="entreprise" placeholder="Nom de l'entreprise" 
+            value="{{ form_data.entreprise }}" required>
+     
+            <input type="email" name="email" placeholder="Adresse e-mail" 
+            value="{{ form_data.email }}" required>
+     
+            <textarea name="adresse" placeholder="Adresse de l'entreprise" rows="3" required>{{ form_data.adresse }}</textarea>
+     
+            <input type="text" name="domaine" placeholder="Domaine d’activité" 
+            value="{{ form_data.domaine }}" required>
+            <input type="text" name="telephone" placeholder="Numéro de Téléphone" 
+            value="{{ form_data.telephone|default:'' }}" required>
+
+            <input type="file" name="video" accept="video/*" required>
+
+            <button type="submit" name="action" value="analyser" id="submitBtn" class="btn-analyse" style="padding: 10px 5px; width: 150px;">Analyser la vidéo</button>
+           
+    
+            <div class="progress-bar-container" id="progressContainer">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+             {% if result_message %}
+            <div class="result {% if mots_trouves %}error{% else %}success{% endif %}">
+                <h3>Résultat :</h3>
+                <p>{{ result_message }}</p>
+            </div>
+        {% endif %}
+
+            
+        
+        {% if is_valid == True %}
+        <button type="button" name="action" value="enregistrer" id="finalizeBtn" class="btn-finalize" style="padding: 10px 5px; width: 150px; background-color: #060 ; margin-top: 10px;">Finaliser l'enregistrement</button>
+        {% endif %}
+
+        </form>
+
+        <a href="{% url 'home' %}">
+        <button type="button" style="margin-top: 20px; background-color: #555;">⬅ Retour</button>
+        </a>
+
+
+       
+
+    </div>
+    
+        
+    
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+
+        form.addEventListener('submit', () => {
+            submitBtn.disabled = true;
+            progressContainer.style.display = 'block';
+            progressBar.style.animationPlayState = 'running';
+        });
+        
+    </script>
+</body>
+</html>
