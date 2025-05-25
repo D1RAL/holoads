@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ video.title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #f7f7f7, #e3e3e3);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .media-container {
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 30px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        video, img {
+            width: 100%;
+            max-height: 450px;
+            display: block;
+        }
+
+        img {
+            object-fit: contain;
+            background-color: #000;
+        }
+
+        .video-info {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .video-info h1 {
+            margin-top: 0;
+            font-size: 2em;
+        }
+
+        .video-info p {
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .media-type-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .video-badge {
+            background-color: #ff7675;
+            color: white;
+        }
+
+        .image-badge {
+            background-color: #74b9ff;
+            color: white;
+        }
+
+        .actions {
+            margin-top: 20px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .actions a {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #1e90ff, #0d6efd);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .actions a:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+
+        .back-link {
+            margin-top: 30px;
+            color: #1e90ff;
+            text-decoration: none;
+            font-weight: bold;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="media-container">
+        {% if video.is_video %}
+            <video controls autoplay>
+                <source src="{% url 'videos:stream_video' video.id %}" type="video/mp4">
+                Votre navigateur ne prend pas en charge la lecture de vidéos.
+            </video>
+        {% else %}
+            <img src="{% url 'videos:stream_video' video.id %}" alt="{{ video.title }}">
+        {% endif %}
+    </div>
+    
+    <div class="video-info">
+        {% if video.is_video %}
+            <span class="media-type-badge video-badge">Vidéo</span>
+        {% else %}
+            <span class="media-type-badge image-badge">Image</span>
+        {% endif %}
+        <h1>{{ video.title }}</h1>
+        <p>{{ video.description }}</p>
+        <p>Ajouté le: {{ video.uploaded_at|date:"d/m/Y H:i" }}</p>
+    </div>
+    
+    <div class="actions">
+        <a href="{% url 'videos:download_video' video.id %}">📥 Télécharger</a>
+    </div>
+    
+    <a href="{% url 'videos:index' %}" class="back-link">⬅ Retour à la liste</a>
+
+    <script>
+        // Apparition smooth des éléments
+        window.addEventListener('load', () => {
+            document.querySelector('.media-container').style.opacity = 1;
+            document.querySelector('.media-container').style.transform = 'translateY(0)';
+
+            setTimeout(() => {
+                document.querySelector('.video-info').style.opacity = 1;
+                document.querySelector('.video-info').style.transform = 'translateY(0)';
+            }, 300);
+
+            setTimeout(() => {
+                document.querySelector('.actions').style.opacity = 1;
+                document.querySelector('.actions').style.transform = 'translateY(0)';
+            }, 600);
+
+            setTimeout(() => {
+                document.querySelector('.back-link').style.opacity = 1;
+                document.querySelector('.back-link').style.transform = 'translateY(0)';
+            }, 900);
+        });
+    </script>
+</body>
+</html>

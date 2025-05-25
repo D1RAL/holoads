@@ -4,170 +4,663 @@
     <meta charset="UTF-8">
     <title>Soumission d'annonce vidéo</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f0f2f5;
+        * {
             margin: 0;
-            padding: 40px;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Particules flottantes en arrière-plan */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="80" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="60" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="30" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="80" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+            animation: float 20s linear infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            100% { transform: translateY(-100vh) rotate(360deg); }
         }
 
         .container {
-            background-color: #fff;
-            padding: 30px 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.1),
+                0 0 0 1px rgba(255,255,255,0.2);
             width: 100%;
-            max-width: 600px;
+            max-width: 700px;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideUp 0.8s ease-out forwards;
+            position: relative;
+            overflow: hidden;
         }
 
-        h1 {
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
+        }
+
+        @keyframes slideUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        h3 {
             text-align: center;
             color: #333;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            font-weight: 300;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 0.3s forwards;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
         }
 
         form {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
+        }
+
+        .input-group {
+            position: relative;
+            overflow: hidden;
         }
 
         input[type="text"],
         input[type="email"],
-        textarea,
-        input[type="file"] {
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+        textarea {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
             font-size: 16px;
-            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        textarea:focus {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 
+                0 10px 20px rgba(102, 126, 234, 0.1),
+                0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 2px dashed #dee2e6;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-input-wrapper:hover {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f8f9ff, #e9ecff);
+            transform: translateY(-2px);
+        }
+
+        .file-input-wrapper.dragover {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #f8fff8, #e9ffe9);
+            transform: scale(1.02);
         }
 
         input[type="file"] {
-            background: #fafafa;
-            cursor: pointer;
-        }
-
-        button {
-            padding: 12px;
-            background-color: #007bff;
-            color: white;
-            font-weight: bold;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        button:disabled {
-            background-color: #999;
-            cursor: not-allowed;
-        }
-
-        .progress-bar-container {
+            position: absolute;
+            opacity: 0;
             width: 100%;
-            background: #eee;
-            border-radius: 8px;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .file-icon {
+            font-size: 2.5em;
+            color: #667eea;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
             overflow: hidden;
-            height: 20px;
-            margin-top: 10px;
-            display: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-analyse {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-analyse:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-analyse:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-finalize {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4); }
+            50% { box-shadow: 0 8px 25px rgba(40, 167, 69, 0.8); }
+            100% { box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4); }
+        }
+
+        .btn-finalize:hover {
+            transform: translateY(-3px);
+        }
+
+        .btn-back {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+            margin-top: 20px;
+        }
+
+        .btn-back:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+            opacity: 0;
+            transform: scaleX(0);
+            transition: all 0.5s ease;
+        }
+
+        .progress-container.show {
+            opacity: 1;
+            transform: scaleX(1);
         }
 
         .progress-bar {
             height: 100%;
-            background: #007bff;
+            background: linear-gradient(90deg, #667eea, #764ba2, #28a745);
+            background-size: 200% 100%;
+            border-radius: 10px;
             width: 0%;
-            animation: progressAnim 8s linear forwards;
+            transition: width 0.3s ease;
+            animation: progressShimmer 2s linear infinite;
         }
 
-        @keyframes progressAnim {
-            from { width: 0%; }
-            to { width: 100%; }
+        @keyframes progressShimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
         }
 
         .result {
             margin-top: 25px;
-            background: #f9f9f9;
-            padding: 15px;
-            border-left: 4px solid #007bff;
-            border-radius: 6px;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid;
+            position: relative;
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideInLeft 0.5s ease-out forwards;
         }
 
-        .result.error { border-left-color: red; color: #a00; }
-        .result.success { border-left-color: green; color: #060; }
+        @keyframes slideInLeft {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .result.error {
+            background: linear-gradient(135deg, #ffe6e6, #ffcccc);
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+
+        .result.success {
+            background: linear-gradient(135deg, #e6ffe6, #ccffcc);
+            border-left-color: #28a745;
+            color: #155724;
+        }
+
+        .loading-dots {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+        }
+
+        .loading-dots div {
+            position: absolute;
+            top: 33px;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: #667eea;
+            animation: loadingDots 1.2s linear infinite;
+        }
+
+        .loading-dots div:nth-child(1) { left: 8px; animation-delay: 0s; }
+        .loading-dots div:nth-child(2) { left: 8px; animation-delay: -0.4s; }
+        .loading-dots div:nth-child(3) { left: 32px; animation-delay: -0.8s; }
+        .loading-dots div:nth-child(4) { left: 56px; animation-delay: -1.2s; }
+
+        @keyframes loadingDots {
+            0% { transform: scale(0); }
+            40% { transform: scale(1); }
+            80%, 100% { transform: scale(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h3 {
+                font-size: 0.9em;
+            }
+        }
+
+        /* Animations d'entrée pour les éléments du formulaire */
+        .input-group {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUpElement 0.6s ease-out forwards;
+        }
+
+        .input-group:nth-child(1) { animation-delay: 0.1s; }
+        .input-group:nth-child(2) { animation-delay: 0.2s; }
+        .input-group:nth-child(3) { animation-delay: 0.3s; }
+        .input-group:nth-child(4) { animation-delay: 0.4s; }
+        .input-group:nth-child(5) { animation-delay: 0.5s; }
+        .input-group:nth-child(6) { animation-delay: 0.6s; }
+
+        @keyframes slideUpElement {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h3>Ce formulaire vous permet de soumettre votre annonce qui sera analysée par une IA qui va analyser l'audio de votre annonce et analyser mots par mots cet audio. Si cet audio contient des mots ou expressions qui ne sont pas conformes, vous ne pourrez pas finaliser votre enregistrement et ne pourrez pas profiter de notre dispositif. Cependant, si l'analyse valide votre annonce, vous êtes automatiquement enregistrés en attendant que l'on conçoive votre dispositif pour l'affichage de votre annonce.</h3>
 
-        <form id="uploadForm" method="POST" enctype="multipart/form-data" >
+        <form id="uploadForm" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             
-            <input type="text" name="entreprise" placeholder="Nom de l'entreprise" 
-            value="{{ form_data.entreprise }}" required>
+            <div class="input-group">
+                <input type="text" name="entreprise" placeholder="Nom de l'entreprise" 
+                value="{{ form_data.entreprise }}" required>
+            </div>
      
-            <input type="email" name="email" placeholder="Adresse e-mail" 
-            value="{{ form_data.email }}" required>
+            <div class="input-group">
+                <input type="email" name="email" placeholder="Adresse e-mail" 
+                value="{{ form_data.email }}" required>
+            </div>
      
-            <textarea name="adresse" placeholder="Adresse de l'entreprise" rows="3" required>{{ form_data.adresse }}</textarea>
+            <div class="input-group">
+                <textarea name="adresse" placeholder="Adresse de l'entreprise" rows="3" required>{{ form_data.adresse }}</textarea>
+            </div>
      
-            <input type="text" name="domaine" placeholder="Domaine d’activité" 
-            value="{{ form_data.domaine }}" required>
-            <input type="text" name="telephone" placeholder="Numéro de Téléphone" 
-            value="{{ form_data.telephone|default:'' }}" required>
+            <div class="input-group">
+                <input type="text" name="domaine" placeholder="Domaine d'activité" 
+                value="{{ form_data.domaine }}" required>
+            </div>
 
-            <input type="file" name="video" accept="video/*" required>
+            <div class="input-group">
+                <input type="text" name="telephone" placeholder="Numéro de Téléphone" 
+                value="{{ form_data.telephone|default:'' }}" required>
+            </div>
 
-            <button type="submit" name="action" value="analyser" id="submitBtn" class="btn-analyse" style="padding: 10px 5px; width: 150px;">Analyser la vidéo</button>
+            <div class="input-group">
+                <div class="file-input-wrapper" id="fileWrapper">
+                    <input type="file" name="video" accept="video/*" required id="videoFile">
+                    <div class="file-label">
+                        <div class="file-icon">🎬</div>
+                        <div>Glissez votre vidéo ici ou cliquez pour sélectionner</div>
+                        <small>Formats acceptés: MP4, AVI, MOV</small>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" name="action" value="analyser" id="submitBtn" class="btn btn-analyse">
+                <span id="btnText">Analyser la vidéo</span>
+            </button>
            
-    
-            <div class="progress-bar-container" id="progressContainer">
+            <div class="progress-container" id="progressContainer">
                 <div class="progress-bar" id="progressBar"></div>
             </div>
 
-             {% if result_message %}
+            <div id="loadingIndicator" style="display: none; text-align: center; margin-top: 20px;">
+                <div class="loading-dots">
+                    <div></div><div></div><div></div><div></div>
+                </div>
+                <p>Analyse en cours...</p>
+            </div>
+
+            {% if result_message %}
             <div class="result {% if mots_trouves %}error{% else %}success{% endif %}">
                 <h3>Résultat :</h3>
                 <p>{{ result_message }}</p>
             </div>
-        {% endif %}
-
-            
+            {% endif %}
         
-        {% if is_valid == True %}
-        <button type="button" name="action" value="enregistrer" id="finalizeBtn" class="btn-finalize" style="padding: 10px 5px; width: 150px; background-color: #060 ; margin-top: 10px;">Finaliser l'enregistrement</button>
-        {% endif %}
-
+            {% if is_valid == True %}
+            <button type="button" name="action" value="enregistrer" id="finalizeBtn" class="btn btn-finalize">
+                ✨ Finaliser l'enregistrement
+            </button>
+            {% endif %}
         </form>
 
         <a href="{% url 'home' %}">
-        <button type="button" style="margin-top: 20px; background-color: #555;">⬅ Retour</button>
+            <button type="button" class="btn btn-back">⬅ Retour</button>
         </a>
-
-
-       
-
     </div>
-    
-        
-    
 
     <script>
+        // Variables globales
         const form = document.getElementById('uploadForm');
         const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
         const progressContainer = document.getElementById('progressContainer');
         const progressBar = document.getElementById('progressBar');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const fileWrapper = document.getElementById('fileWrapper');
+        const videoFile = document.getElementById('videoFile');
 
-        form.addEventListener('submit', () => {
-            submitBtn.disabled = true;
-            progressContainer.style.display = 'block';
-            progressBar.style.animationPlayState = 'running';
+        // Gestion du drag & drop pour les fichiers
+        fileWrapper.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileWrapper.classList.add('dragover');
         });
-        
+
+        fileWrapper.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            fileWrapper.classList.remove('dragover');
+        });
+
+        fileWrapper.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileWrapper.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                videoFile.files = files;
+                updateFileLabel(files[0]);
+            }
+        });
+
+        // Mise à jour du label du fichier
+        videoFile.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                updateFileLabel(e.target.files[0]);
+            }
+        });
+
+        function updateFileLabel(file) {
+            const label = fileWrapper.querySelector('.file-label');
+            const size = (file.size / (1024 * 1024)).toFixed(2);
+            label.innerHTML = `
+                <div class="file-icon">✅</div>
+                <div><strong>${file.name}</strong></div>
+                <small>Taille: ${size} MB</small>
+            `;
+            fileWrapper.style.borderColor = '#28a745';
+            fileWrapper.style.background = 'linear-gradient(135deg, #f8fff8, #e9ffe9)';
+        }
+
+        // Animation de progression personnalisée
+        function animateProgress(duration = 8000) {
+            progressContainer.classList.add('show');
+            loadingIndicator.style.display = 'block';
+            
+            let progress = 0;
+            const increment = 100 / (duration / 50);
+            
+            const timer = setInterval(() => {
+                progress += increment;
+                progressBar.style.width = Math.min(progress, 95) + '%';
+                
+                if (progress >= 95) {
+                    clearInterval(timer);
+                }
+            }, 50);
+        }
+
+        // Gestion de la soumission du formulaire
+        form.addEventListener('submit', (e) => {
+            // Vérifications avant soumission
+            const fileInput = videoFile;
+            if (!fileInput.files.length) {
+                e.preventDefault();
+                alert('Veuillez sélectionner une vidéo');
+                return;
+            }
+
+            // Animation du bouton
+            submitBtn.disabled = true;
+            btnText.textContent = 'Analyse en cours...';
+            submitBtn.style.background = 'linear-gradient(135deg, #6c757d, #495057)';
+            
+            // Démarrer l'animation de progression
+            animateProgress();
+            
+            // Animation du bouton avec effet de pulsation
+            let pulseCount = 0;
+            const pulseInterval = setInterval(() => {
+                submitBtn.style.transform = pulseCount % 2 === 0 ? 'scale(1.05)' : 'scale(1)';
+                pulseCount++;
+            }, 500);
+
+            // Nettoyer l'intervalle après un certain temps
+            setTimeout(() => {
+                clearInterval(pulseInterval);
+                submitBtn.style.transform = 'scale(1)';
+            }, 8000);
+        });
+
+        // Animation d'apparition des éléments de résultat
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateX(0)';
+                }
+            });
+        });
+
+        // Observer tous les éléments de résultat
+        document.querySelectorAll('.result').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Animation de survol pour les inputs
+        document.querySelectorAll('input, textarea').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'translateY(-2px)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Effet de particules sur clic du bouton
+        function createParticles(element) {
+            for (let i = 0; i < 6; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = '6px';
+                particle.style.height = '6px';
+                particle.style.backgroundColor = '#667eea';
+                particle.style.borderRadius = '50%';
+                particle.style.pointerEvents = 'none';
+                particle.style.zIndex = '1000';
+                
+                const rect = element.getBoundingClientRect();
+                particle.style.left = (rect.left + rect.width / 2) + 'px';
+                particle.style.top = (rect.top + rect.height / 2) + 'px';
+                
+                document.body.appendChild(particle);
+                
+                const angle = (i * 60) * Math.PI / 180;
+                const velocity = 100;
+                
+                particle.animate([
+                    { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                    { 
+                        transform: `translate(${Math.cos(angle) * velocity}px, ${Math.sin(angle) * velocity}px) scale(0)`, 
+                        opacity: 0 
+                    }
+                ], {
+                    duration: 800,
+                    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                }).onfinish = () => particle.remove();
+            }
+        }
+
+        // Ajouter l'effet de particules aux boutons
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                createParticles(this);
+            });
+        });
+
+        // Animation de typing pour le texte d'introduction
+        function typeWriter(element, text, speed = 50) {
+            let i = 0;
+            element.innerHTML = '';
+            
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+            type();
+        }
+
+        // Attendre que la page soit chargée pour commencer l'animation
+        window.addEventListener('load', () => {
+            const h3 = document.querySelector('h3');
+            const originalText = h3.textContent;
+            setTimeout(() => {
+                typeWriter(h3, originalText, 30);
+            }, 1000);
+        });
     </script>
 </body>
 </html>

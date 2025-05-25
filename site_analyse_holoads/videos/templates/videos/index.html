@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Bibliothèque de médias</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #f7f7f7, #e3e3e3);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            animation: fadeInDown 1s ease-out forwards;
+            opacity: 0;
+        }
+
+        .video-list {
+            width: 100%;
+            max-width: 800px;
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .video-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+
+        .media-preview {
+            width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .video-preview {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background: #000;
+        }
+
+        .image-preview {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .video-item a {
+            color: #1e90ff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .video-item a:hover {
+            color: #0d6efd;
+        }
+
+        .video-item h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+        }
+
+        .video-info {
+            color: #888;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .video-item:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .media-type-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .video-badge {
+            background-color: #ff7675;
+            color: white;
+        }
+
+        .image-badge {
+            background-color: #74b9ff;
+            color: white;
+        }
+
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-container {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .video-item {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Bibliothèque de médias</h1>
+    
+    <ul class="video-list">
+        {% for video in videos %}
+            <li class="video-item">
+                {% if video.is_video %}
+                    <div class="video-container">
+                        <video class="video-preview" controls preload="metadata" 
+                               crossorigin="anonymous"
+                               data-video-id="{{ video.id }}"
+                               autoplay muted loop>
+                            <source src="{% url 'videos:stream_video' video.id %}" type="video/mp4">
+                            Votre navigateur ne prend pas en charge la lecture de vidéos.
+                        </video>
+                    </div>
+                    <span class="media-type-badge video-badge">Vidéo</span>
+                {% else %}
+                    <img class="image-preview" src="{% url 'videos:stream_video' video.id %}" alt="{{ video.original_filename }}" loading="lazy">
+                    <span class="media-type-badge image-badge">Image</span>
+                {% endif %}
+                
+                <h3><a href="{% url 'videos:video_detail' video.id %}">{{ video.entreprise }}</a></h3>
+                <p><strong>Fichier:</strong> {{ video.original_filename }}</p>
+                <p><strong>Taille:</strong> {{ video.file_size_mb }} MB</p>
+                {% if video.domaine %}
+                    <p><strong>Domaine:</strong> {{ video.domaine }}</p>
+                {% endif %}
+                <div class="video-info">
+                    Ajouté le: {{ video.created_at|date:"d/m/Y H:i" }}
+                </div>
+                <div style="margin-top: 10px;">
+                    <a href="{% url 'videos:download_video' video.id %}">📥 Télécharger</a>
+                    {% if not video.file_exists %}
+                        <span style="color: red; margin-left: 10px;">⚠️ Fichier introuvable</span>
+                    {% endif %}
+                </div>
+            </li>
+        {% empty %}
+            <li class="video-item">Aucun média disponible</li>
+        {% endfor %}
+    </ul>
+
+    <script>
+        // Animation fade-in pour les médias au scroll
+        const videoItems = document.querySelectorAll('.video-item');
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = 1;
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        videoItems.forEach(item => {
+            observer.observe(item);
+        });
+
+        // Animation titre
+        window.addEventListener('load', () => {
+            document.querySelector('h1').style.opacity = 1;
+        });
+
+        // Gestion des erreurs vidéo
+        document.querySelectorAll('video').forEach(video => {
+            video.addEventListener('error', function(e) {
+                console.error('Erreur vidéo:', e);
+                console.error('URL vidéo:', this.currentSrc);
+                console.error('Type d\'erreur:', this.error);
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.innerHTML = `❌ Erreur de lecture vidéo<br><small>ID: ${this.dataset.videoId}</small>`;
+                errorDiv.style.textAlign = 'center';
+                errorDiv.style.padding = '20px';
+                errorDiv.style.backgroundColor = '#f8d7da';
+                errorDiv.style.color = '#721c24';
+                errorDiv.style.borderRadius = '8px';
+                errorDiv.style.border = '1px solid #f5c6cb';
+                this.parentNode.insertBefore(errorDiv, this.nextSibling);
+                this.style.display = 'none';
+            });
+            
+            video.addEventListener('loadedmetadata', function() {
+                console.log('Vidéo chargée avec succès:', this.src);
+                console.log('Durée:', this.duration);
+            });
+            
+            video.addEventListener('canplay', function() {
+                console.log('Vidéo prête à être lue:', this.src);
+            });
+            
+            // Test de connectivité
+            video.addEventListener('loadstart', function() {
+                console.log('Début du chargement:', this.src);
+            });
+        });
+
+        // Test de connectivité
+        document.querySelectorAll('img').forEach(img => {
+            img.addEventListener('error', function() {
+                this.style.display = 'none';
+                const errorDiv = document.createElement('div');
+                errorDiv.innerHTML = '❌ Image non trouvée';
+                errorDiv.style.textAlign = 'center';
+                errorDiv.style.padding = '20px';
+                errorDiv.style.backgroundColor = '#f8f9fa';
+                errorDiv.style.borderRadius = '8px';
+                this.parentNode.insertBefore(errorDiv, this.nextSibling);
+            });
+        });
+    </script>
+</body>
+</html>
