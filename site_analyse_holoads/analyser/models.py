@@ -1,5 +1,6 @@
 # analyser/models.py
 from django.db import models
+from django.contrib.auth.models import User
 
 class entreprises(models.Model):
     entreprise = models.CharField(max_length=200)
@@ -21,3 +22,27 @@ class entreprises(models.Model):
     
     def __str__(self):
         return self.entreprise
+    
+
+
+class Commune(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    price = models.CharField(max_length=50)  # Ex: "50,000 FCFA/mois"
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    color = models.CharField(max_length=7)  # Code couleur hex
+    
+    def __str__(self):
+        return self.name
+
+class Emplacement(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    commune = models.ForeignKey(Commune, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    confirmed = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.commune.name}"
+    
+
