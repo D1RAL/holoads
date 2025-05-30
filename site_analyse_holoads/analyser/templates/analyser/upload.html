@@ -276,6 +276,10 @@
             transition: all 0.5s ease;
         }
 
+        .emp{
+            text-decoration: none;
+            color: white;
+        }
         .progress-container.show {
             opacity: 1;
             transform: scaleX(1);
@@ -459,7 +463,7 @@
         
             {% if is_valid == True %}
             <button type="button" name="action" value="enregistrer" id="finalizeBtn" class="btn btn-finalize">
-                ✨ Finaliser l'enregistrement
+                ✨<a class="emp" href="{% url 'emplacement' %}">Continuer l'enregistrement</a> 
             </button>
             {% endif %}
         </form>
